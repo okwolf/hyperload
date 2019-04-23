@@ -46,16 +46,17 @@ const Loading = ({ error, otherProp }) => (
   <span>{error ? `Error! ${error}` : `loading ${otherProps}...`}</span>
 );
 
-const LoadMyComponent = Hyperload({
-  // These are the required props
-  module: "./my-component",
-  loading: Loading,
-
-  otherProps: "will be passed to the loading and resolved components"
-});
-
 withHyperload(app)({
-  view: () => <LoadMyComponent />,
+  view: () => (
+    <main>
+      <Hyperload
+        // These are the required props
+        module="./my-component"
+        loading={Loading}
+        otherProps="will be passed to the loading and imported components"
+      />
+    </main>
+  ),
   container: document.body
 });
 ```
