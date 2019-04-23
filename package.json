@@ -1,0 +1,63 @@
+{
+  "name": "hyperload",
+  "version": "0.0.1",
+  "description": "Dynamically imported components for Hyperapp",
+  "main": "dist/hyperload.js",
+  "module": "src/index.js",
+  "peerDependencies": {
+    "hyperapp": "2.x"
+  },
+  "devDependencies": {
+    "@babel/preset-env": "=7.4.3",
+    "babel-eslint": "=10.0.1",
+    "eslint": "=5.16.0",
+    "eslint-plugin-compat": "=3.1.1",
+    "prettier": "=1.17.0",
+    "rollup": "=1.10.1",
+    "uglify-js": "=3.5.6"
+  },
+  "scripts": {
+    "clean": "npx rimraf dist node_modules",
+    "format": "prettier --write src/**/*.js",
+    "format:check": "prettier --list-different src/**/*.js",
+    "lint": "eslint src/**/*.js",
+    "bundle": "rollup -i src/index.js -o dist/hyperload.js -m -f umd -n hyperload",
+    "minify": "uglifyjs dist/hyperload.js -o dist/hyperload.js -mc pure_funcs=['Object.defineProperty'] --source-map includeSources,url=hyperload.js.map",
+    "check": "npm run format:check && npm run lint",
+    "build": "npm run check && npm run bundle && npm run minify",
+    "prepare": "npm run build",
+    "release": "./pre-flight-tests && npm run clean && npm i && ./pre-flight-tests && git tag $npm_package_version && git push && git push --tags && npm publish"
+  },
+  "babel": {
+    "presets": [
+      "@babel/env"
+    ]
+  },
+  "eslintConfig": {
+    "extends": "eslint:recommended",
+    "plugins": [
+      "compat"
+    ],
+    "parser": "babel-eslint",
+    "parserOptions": {
+      "sourceType": "module"
+    },
+    "env": {
+      "browser": true
+    },
+    "rules": {
+      "no-use-before-define": "error",
+      "compat/compat": "error"
+    }
+  },
+  "browserslist": [
+    "IE 10"
+  ],
+  "author": "Wolfgang Wedemeyer <wolf@okwolf.com>",
+  "license": "MIT",
+  "repository": "okwolf/hyperload",
+  "homepage": "https://github.com/okwolf/hyperload",
+  "bugs": {
+    "url": "https://github.com/okwolf/hyperload/issues"
+  }
+}
