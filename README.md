@@ -51,7 +51,8 @@ withHyperload(app)({
     <main>
       <Hyperload
         // These are the required props
-        module="./my-component"
+        key="my-component"
+        module={() => import("./my-component")}
         loading={Loading}
         otherProps="will be passed to the loading and imported components"
       />

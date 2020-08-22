@@ -13,10 +13,10 @@ export function Hyperload(props) {
   };
 }
 
-function makeUpdateLoadState(modulePath, state, dispatch) {
+function makeUpdateLoadState(moduleKey, state, dispatch) {
   return function updateLoadState(props) {
     var loadStateProp = {};
-    loadStateProp[modulePath] = assign(state.hyperload[modulePath], props);
+    loadStateProp[moduleKey] = assign(state.hyperload[moduleKey], props);
     dispatch(
       assign(state, {
         hyperload: assign(state.hyperload, loadStateProp)
@@ -30,16 +30,17 @@ function patchVdom(vdom, state, moduleCache, dispatch) {
     for (var i in vdom.children) {
       var child = vdom.children[i];
       if (child.hyperload) {
-        var modulePath = child.props.module;
-        var loadState = state.hyperload[modulePath];
-        var cachedModule = moduleCache[modulePath];
-        var updateLoadState = makeUpdateLoadState(modulePath, state, dispatch);
+        var moduleKey = child.props.key;
+        var moduleImport = child.props.module;
+        var loadState = state.hyperload[moduleKey];
+        var cachedModule = moduleCache[moduleKey];
+        var updateLoadState = makeUpdateLoadState(moduleKey, state, dispatch);
         if (!loadState) {
           loadState = { loading: true };
           updateLoadState(loadState);
-          import(modulePath)
+          moduleImport()
             .then(function(loaded) {
-              moduleCache[modulePath] = loaded.default || loaded;
+              moduleCache[moduleKey] = loaded.default || loaded;
               updateLoadState({ loading: false, loaded: true });
             })
             .catch(function(error) {
@@ -72,7 +73,7 @@ export function withHyperload(nextApp) {
       return [
         initialState,
         [
-          function(_, initDispatch) {
+          function(initDispatch) {
             dispatch = initDispatch;
             dispatch(props.init);
             dispatch(function(state) {
