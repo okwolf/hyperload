@@ -9,17 +9,17 @@ function assign(source, assignments) {
 export function Hyperload(props) {
   return {
     hyperload: true,
-    props: props
+    props: props,
   };
 }
 
-function makeUpdateLoadState(modulePath, state, dispatch) {
+function makeUpdateLoadState(moduleKey, state, dispatch) {
   return function updateLoadState(props) {
     var loadStateProp = {};
-    loadStateProp[modulePath] = assign(state.hyperload[modulePath], props);
+    loadStateProp[moduleKey] = assign(state.hyperload[moduleKey], props);
     dispatch(
       assign(state, {
-        hyperload: assign(state.hyperload, loadStateProp)
+        hyperload: assign(state.hyperload, loadStateProp),
       })
     );
   };
@@ -30,19 +30,20 @@ function patchVdom(vdom, state, moduleCache, dispatch) {
     for (var i in vdom.children) {
       var child = vdom.children[i];
       if (child.hyperload) {
-        var modulePath = child.props.module;
-        var loadState = state.hyperload[modulePath];
-        var cachedModule = moduleCache[modulePath];
-        var updateLoadState = makeUpdateLoadState(modulePath, state, dispatch);
+        var moduleKey = child.props.key;
+        var moduleImport = child.props.module;
+        var loadState = state.hyperload[moduleKey];
+        var cachedModule = moduleCache[moduleKey];
+        var updateLoadState = makeUpdateLoadState(moduleKey, state, dispatch);
         if (!loadState) {
           loadState = { loading: true };
           updateLoadState(loadState);
-          import(modulePath)
-            .then(function(loaded) {
-              moduleCache[modulePath] = loaded.default || loaded;
+          moduleImport()
+            .then(function (loaded) {
+              moduleCache[moduleKey] = loaded.default || loaded;
               updateLoadState({ loading: false, loaded: true });
             })
-            .catch(function(error) {
+            .catch(function (error) {
               updateLoadState({ loading: false, error: error });
             });
         }
@@ -51,7 +52,7 @@ function patchVdom(vdom, state, moduleCache, dispatch) {
         } else if (loadState.error) {
           vdom.children[i] = child.props.loading(
             assign(child.props, {
-              error: loadState.error
+              error: loadState.error,
             })
           );
         } else if (loadState.loading) {
@@ -65,23 +66,23 @@ function patchVdom(vdom, state, moduleCache, dispatch) {
 }
 
 export function withHyperload(nextApp) {
-  return function(props) {
+  return function (props) {
     var moduleCache = {};
     var dispatch;
     function enhancedInit(initialState) {
       return [
         initialState,
         [
-          function(_, initDispatch) {
+          function (initDispatch) {
             dispatch = initDispatch;
             dispatch(props.init);
-            dispatch(function(state) {
+            dispatch(function (state) {
               return assign(state, {
-                hyperload: {}
+                hyperload: {},
               });
             });
-          }
-        ]
+          },
+        ],
       ];
     }
 
@@ -94,7 +95,7 @@ export function withHyperload(nextApp) {
     return nextApp(
       assign(props, {
         init: enhancedInit,
-        view: enhancedView
+        view: enhancedView,
       })
     );
   };
