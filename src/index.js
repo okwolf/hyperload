@@ -72,7 +72,7 @@ export function withHyperload(nextApp) {
       return [
         initialState,
         [
-          function(_, initDispatch) {
+          function(initDispatch) {
             dispatch = initDispatch;
             dispatch(props.init);
             dispatch(function(state) {
