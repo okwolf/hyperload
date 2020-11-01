@@ -1,0 +1,12 @@
+{
+  "name": "hyperload-example",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "hyperapp": "=2.0.8",
+    "hyperload": "file:../"
+  },
+  "scripts": {
+    "start": "npm i && npx srvs"
+  }
+}

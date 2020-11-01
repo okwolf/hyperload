@@ -40,10 +40,16 @@ function patchVdom(vdom, state, moduleCache, dispatch) {
           import(modulePath)
             .then(function(loaded) {
               moduleCache[modulePath] = loaded.default || loaded;
-              updateLoadState({ loading: false, loaded: true });
+              updateLoadState({
+                loading: false,
+                loaded: true
+              });
             })
             .catch(function(error) {
-              updateLoadState({ loading: false, error: error });
+              updateLoadState({
+                loading: false,
+                error: error
+              });
             });
         }
         if (loadState.loaded && cachedModule) {
@@ -72,7 +78,7 @@ export function withHyperload(nextApp) {
       return [
         initialState,
         [
-          function(_, initDispatch) {
+          function(initDispatch) {
             dispatch = initDispatch;
             dispatch(props.init);
             dispatch(function(state) {
